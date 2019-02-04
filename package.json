@@ -1,0 +1,20 @@
+{
+    "name": "csjs",
+    "version": "1.0.0",
+    "description": "An awesome playground for practicing Algorithms and Data Structures in JavaScript",
+    "main": "index.js",
+    "scripts": {
+        "start": "clear && node src/index.js"
+    },
+    "repository": "git@github.com:gnemtsov/csjs.git",
+    "author": "GEORGIY NEMTSOV <gnemtsov@gmail.com>",
+    "license": "MIT",
+    "private": true,
+    "dependencies": {
+        "ansi-escapes": "^3.1.0",
+        "chalk": "^2.4.1",
+        "ora": "^3.0.0",
+        "xxhashjs": "^0.2.2"
+    },
+    "devDependencies": {}
+}

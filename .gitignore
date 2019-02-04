@@ -1,3 +1,6 @@
+#inputs
+**/tests/*.txt
+
 # Logs
 logs
 *.log
