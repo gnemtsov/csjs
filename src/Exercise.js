@@ -5,6 +5,7 @@ var chalk = require('chalk');
 var cpus = require('os').cpus();
 //const xxh = require('xxhashjs');
 var { fork } = require('child_process');
+var prettyBytes = require('pretty-bytes');
 
 var { mkDirByPathSync, repeat, sleep } = require('./utils.js');
 
@@ -31,13 +32,13 @@ module.exports = class Exercise {
 
   //Initialize the exercise
   async init() {
-    this._status = 'Generating test cases';
+    this._status = chalk.yellow('Generating test cases');
     await this._generateTests();
 
-    this._status = 'Populating tests';
+    this._status = chalk.yellow('Populating tests');
     await this._populateTests();
 
-    this._status = 'Calculating hashes';
+    this._status = chalk.yellow('Calculating hashes');
     await this._calculateHashes();
 
     return this;
@@ -126,7 +127,7 @@ module.exports = class Exercise {
             '⡇  ',
             `Exercise: ${chalk.bold(this._name)}`,
             repeat(' ', this._w - 20 - this._name.length),
-            chalk.bgCyan('CSJS'),
+            chalk.bgWhite('CSJS'),
             '  ⢸',
           ];
           newScreen.push(line.join(''));
@@ -154,18 +155,41 @@ module.exports = class Exercise {
         newScreen.push('');
 
         //test cases
-        if (typeof this._testsGenerator === 'function') {
+        if (this._testsGenerator !== null) {
           newScreen.push('Test cases');
 
-          for (let { name, msg } of this._testsGenerator()) {
-            if (msg === undefined) {
-              newScreen.push(name);
+          for (let test of this._testsGenerator()) {
+            if (test.msg === undefined) {
+              newScreen.push(test.name);
+            } else if (['Pass', 'Fail'].includes(test.msg)) {
+              const name = `${test.name} `;
+
+              const report =
+                `[${test.time} ms, ` +
+                `${prettyBytes(test.memory.heapUsed, { locale: true })}]`;
+
+              const msg = test.msg;
+              const msgColor = test.msg === 'Pass' ? 'green' : 'red';
+
+              const dots = repeat(
+                '.',
+                this._w - name.length - report.length - msg.length
+              );
+
+              newScreen.push(
+                `${name}${chalk.dim(report)}${dots}${chalk[msgColor](msg)}`
+              );
             } else {
-              let dots = repeat('.', this._w - name.length - msg.length);
-              newScreen.push(`${name}${dots}${msg}`);
+              const dots = repeat(
+                '.',
+                this._w - test.name.length - test.msg.length
+              );
+              newScreen.push(`${test.name}${dots}${test.msg}`);
             }
           }
         }
+
+        newScreen.push('');
 
         //print output updating only changed lines
         //TODO update only changed part of each line
@@ -357,11 +381,13 @@ module.exports = class Exercise {
   }
 
   /*
-    Fork a worker child process and run callback when it is finished
+    Fork a child process and run callback function when it exits
     For debugging fork with args:
-        const worker = fork('src/worker.js', [], {
-        execArgv: ['--inspect-brk=9223'],
-    });
+        var worker = fork(
+            'src/worker.js', 
+            [], 
+            { execArgv: ['--inspect-brk=9223'],}
+        );
     */
   _forkWorker(test, solutionName, exitCallback) {
     this._activeWorkers++;

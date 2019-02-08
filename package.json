@@ -14,6 +14,7 @@
         "ansi-escapes": "^3.1.0",
         "chalk": "^2.4.1",
         "ora": "^3.0.0",
+        "pretty-bytes": "^5.1.0",
         "xxhashjs": "^0.2.2"
     },
     "devDependencies": {}

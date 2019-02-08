@@ -3,6 +3,13 @@ module.exports = str => {
     let ar = str.split('');
     const count = ar.length;
 
+    var start = Date.now(),
+        now = start;
+    while (now - start < 1000) {
+      now = Date.now();
+    }
+
+
     ar.some((letter, i) => {
         const pair = count - i;
         if (i < pair) {
